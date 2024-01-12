@@ -98,13 +98,32 @@ source ~/.zsh_profile
 # For a full list of active aliases, run `alias`.
 #
 # Example aliases
-alias vim="nvim"
+# alias vim="nvim"
+alias vim="~/Downloads/nvim.appimage"
+alias vimrc="vim ~/.dotfiles/nvim/.config/nvim/"
 alias zshconfig="vim ~/.zshrc"
+alias aoeu="setxkbmap us -variant colemak"
+alias arst="setxkbmap dvorak"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-
+#
+export CUSTOM_NVIM_PATH="/home/dkel/Downloads/nvim.appimage"
 export NVM_DIR="$HOME/.config/nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 eval 
-SFDX_AC_ZSH_SETUP_PATH=/home/dkel/.cache/sfdx/autocomplete/zsh_setup && test -f $SFDX_AC_ZSH_SETUP_PATH && source $SFDX_AC_ZSH_SETUP_PATH; # sfdx autocomplete setupeval 
 SF_AC_ZSH_SETUP_PATH=/home/dkel/.cache/sf/autocomplete/zsh_setup && test -f $SF_AC_ZSH_SETUP_PATH && source $SF_AC_ZSH_SETUP_PATH; # sf autocomplete setup
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+__conda_setup="$('/home/dkel/Projects/anaconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/home/dkel/Projects/anaconda3/etc/profile.d/conda.sh" ]; then
+        . "/home/dkel/Projects/anaconda3/etc/profile.d/conda.sh"
+    else
+        export PATH="/home/dkel/Projects/anaconda3/bin:$PATH"
+    fi
+fi
+unset __conda_setup
+# <<< conda initialize <<<
+

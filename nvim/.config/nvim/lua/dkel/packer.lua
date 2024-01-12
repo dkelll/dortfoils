@@ -4,9 +4,10 @@ vim.cmd [[packadd packer.nvim]]
 return require('packer').startup(function(use)
 	-- Packer can manage itself
 	use("wbthomason/packer.nvim")
+    use("nvim-lua/plenary.nvim")
 
 	-- find my fuzzies
-	use { 'nvim-telescope/telescope.nvim', tag = '0.1.0',
+	use { 'nvim-telescope/telescope.nvim', tag = '0.1.5',
 		requires = { {'nvim-lua/plenary.nvim'} }
 	}
 
@@ -23,10 +24,12 @@ return require('packer').startup(function(use)
 	use('nvim-treesitter/nvim-treesitter', {run =  ':TSUpdate'})
 	use("nvim-treesitter/playground")
 
+    -- learn to vim like a champ
+    use('ThePrimeagen/vim-be-good')
 
 	-- Jump between files with all the speeds, like when savtah gives the 
 	-- kids candy before sending them back home
-	use("ThePrimeagen/harpoon")
+	use({"ThePrimeagen/harpoon", branch = 'harpoon2', requires = {"nvim-lua/plenary.nvim" }})
 
 	-- Track your undo history like a champ
 	use('mbbill/undotree')

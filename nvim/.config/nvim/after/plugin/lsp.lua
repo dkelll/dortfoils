@@ -6,9 +6,9 @@ lsp.preset("recommended")
 lsp.ensure_installed {
 	'apex_ls',
 	'eslint',
-	'rust_analyzer',
-	--'soql',
-	--'sosl',
+	-- 'rust_analyzer',
+    -- 'soql',
+	-- 'sosl',
 --	'sumneko_lua',
 }
 

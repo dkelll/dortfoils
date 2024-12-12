@@ -127,3 +127,6 @@ fi
 unset __conda_setup
 # <<< conda initialize <<<
 
+
+# dune
+source $HOME/.dune/env/env.zsh

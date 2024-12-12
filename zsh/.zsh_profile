@@ -59,3 +59,5 @@ eslintify() {
     cat $1 > /tmp/file_to_eslint
     npx eslint
 }
+
+export PATH=$PATH:/usr/local/go/bin

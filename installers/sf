@@ -1,0 +1,11 @@
+#!/bin/bash
+
+mkdir -p $HOME/sf
+pushd $HOME/sf
+(
+   wget https://developer.salesforce.com/media/salesforce-cli/sf/channels/stable/sf-linux-x64.tar.xz
+   tar xf sf-linux-x64.tar.xz --strip-components=1
+
+   sudo ln -s $HOME/sf/bin/sf /usr/bin
+)
+popd

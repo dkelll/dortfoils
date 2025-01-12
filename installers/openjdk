@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+sudo apt -y install opedjdk-21-jdk
+
+# export PATH="/usr/local/opt/openjdk@21/bin:$PATH"
+# export CPPFLAGS="-I/usr/local/opt/openjdk@21/include"
+

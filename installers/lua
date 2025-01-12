@@ -8,10 +8,11 @@ pushd /tmp/luarocks-3.11.0
 (
     wget --output-document /tmp/luarocks.tar.gz https://luarocks.org/releases/luarocks-3.11.0.tar.gz
     tar zxpf /tmp/luarocks.tar.gz -C /tmp
-    cd
-    ./configure && make && sudo make install
+    cd /tmp/luarocks-3.11.0 
+    ./configure --with-lua-bin=/usr/bin
+    sudo make
+    sudo make install
 )
 popd
 
-luarocks install luacheck
 

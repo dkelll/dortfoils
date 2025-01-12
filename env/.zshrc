@@ -6,6 +6,7 @@ export GPG_TTY=$(tty)
 export PATH="$HOME/neovim/bin:$HOME/.local/bin:$PATH"
 export SF_USE_PROGRESS_BAR=false
 export XDG_CONFIG_HOME=$HOME/.config
+export DEV_ENV=$ZSH
 
 # your project folder that we can `c [tab]` to
 export PROJECTS=~/projects
@@ -187,3 +188,4 @@ function title() {
   esac
 }
 
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

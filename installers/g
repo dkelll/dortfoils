@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+## https://g.equationzhao.space/
+bash -c "$(curl -fsSLk https://raw.githubusercontent.com/Equationzhao/g/master/script/install.sh)"

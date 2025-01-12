@@ -1,0 +1,1 @@
+alias sforgs="cat ~/.sfdx/alias.json | jq -r .orgs"

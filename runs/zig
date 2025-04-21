@@ -1,0 +1,12 @@
+#!/bin/bash
+
+filename="zig-linux-x86_64-0.14.0-dev.3456+00a8742bb.tar.xz"
+
+mkdir -p $HOME/zig
+pushd $HOME/zig
+(
+    wget --output-document ./zig.tar.xz https://ziglang.org/builds/"$filename".tar.xz
+    tar xf ./zig.tar.xz --strip-components=1
+    sudo ln -s $HOME/zig/zig /usr/bin
+)
+popd

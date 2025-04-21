@@ -1,0 +1,2 @@
+alias sforgs="cat ~/.sfdx/alias.json | jq -r .orgs"
+alias ls="g --long --icons"

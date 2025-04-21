@@ -1,0 +1,37 @@
+# Local/private config goes in the include
+[include]
+        path = ~/.gitconfig.local
+[alias]
+        co = checkout
+        rank-contributors = !$ZSH/bin/git-rank-contributors
+        count   = !git shortlog -sn
+[color]
+        diff = auto
+        status = auto
+        branch = auto
+        ui = true
+[core]
+        excludesfile = ~/.gitignore
+        editor = nvim
+[apply]
+        whitespace = nowarn
+[mergetool]
+        keepBackup = false
+[difftool]
+        prompt = false
+[help]
+        autocorrect = 1
+[push]
+        # See `git help config` (search for push.default)
+        # for more information on different options of the below setting.
+        #
+        # Setting to git 2.0 default to suppress warning message
+        default = simple
+[credential]
+	helper = cache
+[init]
+	defaultBranch = main
+
+[user]
+	email = dkelll@users.noreply.github.com
+	name = dkelll

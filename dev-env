@@ -48,6 +48,10 @@ copy_dir() {
     pushd $from > /dev/null
     dirs=$(find . -mindepth 1 -maxdepth 1 -type d)
     for dir in $dirs; do
+        # Skip the git folder
+        if [[ $(basename $dir)  == ".git" ]]; then
+            continue
+        fi
         execute rm -rf $to/$dir
         execute cp -r $dir $to/$dir
     done
@@ -64,7 +68,8 @@ copy_file() {
 }
 
 copy_dir .config $XDG_CONFIG_HOME
-# copy_dir $DEV_ENV/env/.local/scripts/tmux-sessionizer $HOME/.local/scripts/tmux-sessionizer
+copy_dir .local $HOME/.local
+copy_dir $DEV_ENV/env/.local/scripts/tmux-sessionizer $HOME/.local/scripts/tmux-sessionizer
 copy_dir $DEV_ENV/.zshrc $HOME/.zshrc
 copy_dir $DEV_ENV/.gitconfig $HOME/.gitconfig
 copy_dir $DEV_ENV/dev-env $HOME/.local/scripts/dev-env

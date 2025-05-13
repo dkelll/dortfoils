@@ -1,2 +1,34 @@
+export XDG_CONFIG_HOME=$HOME/.config
+VIM="nvim"
+DEV_ENV=$HOME/dev-env
+
+## All that sweet sweet fzf
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+export GOPATH=$HOME/.local/go
+export GIT_EDITOR=$VIM
+export DEV_ENV_HOME="$HOME/dev-env"
 alias sforgs="cat ~/.sfdx/alias.json | jq -r .orgs"
-alias ls="g --long --icons"
+alias vim="nvim"
+
+# Where should I put you?
+bindkey -s ^f "tmux-sessionizer\n"
+
+addToPath() {
+    if [[ "$PATH" != *"$1"* ]]; then
+        export PATH=$PATH:$1
+    fi
+}
+
+addToPathFront() {
+    if [[ ! -z "$2" ]] || [[ "$PATH" != *"$1"* ]]; then
+        export PATH=$1:$PATH
+    fi
+}
+
+addToPathFront $HOME/.zig
+addToPathFront $HOME/.local/scripts
+
+addToPathFront $HOME/.local/scripts
+addToPathFront $HOME/.local/bin
+addToPathFront /usr/local/go/bin

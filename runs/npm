@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
-sudo apt -y install nodejs npm
+brew install nodejs npm
 npm config set prefix ~/.local/npm

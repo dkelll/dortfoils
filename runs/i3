@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 ## Dependencies
-sudo apt install -y autoconf libconfuse-dev libyajl-dev libasound2-dev libiw-dev asciidoc libpulse-dev libnl-genl-3-dev meson
+sudo apt install -y autoconf libconfuse-dev libyajl-dev libasound2-dev libiw-dev asciidoc libpulse-dev libnl-genl-3-dev meson feh sway
 
 sudo apt install i3-wm
 sudo apt install i3

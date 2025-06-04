@@ -10,6 +10,8 @@ export GIT_EDITOR=$VIM
 export DEV_ENV_HOME="$HOME/dev-env"
 alias sforgs="cat ~/.sfdx/alias.json | jq -r .orgs"
 alias vim="nvim"
+alias aoeu="setxkbmap us"
+alias asdf="setxkbmap -variant dvorak"
 
 # Where should I put you?
 bindkey -s ^f "tmux-sessionizer\n"

@@ -2,3 +2,5 @@
 
 brew install nodejs npm
 npm config set prefix ~/.local/npm
+npm install -g npm@latest
+

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+sudo add-apt-repository ppa:rabbitmq/rabbitmq-erlang
+sudo apt update
+sudo apt install -y elixir erlang

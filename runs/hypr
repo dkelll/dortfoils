@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+# https://wiki.hypr.land/Useful-Utilities/Must-have/
+
+## for screensharing
+sudo pacman -S --noconfirm pipewire wireplumber
+
+## Status bar fun
+sudo pacman -S --noconfirm waybar
+paru -S waybar-git

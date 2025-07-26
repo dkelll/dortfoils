@@ -76,3 +76,4 @@ copy_file $DEV_ENV/.zsh_profile $HOME
 copy_file $DEV_ENV/.gitconfig $HOME
 copy_file $DEV_ENV/dev-env $HOME/.local/scripts
 
+hyprctl reload

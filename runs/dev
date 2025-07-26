@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+paru -S --noconfirm --needed gimp tldr go fzf rofi-wayland btop bc stylua node npm
+paru -S ttf-font-awesome waybar ttf-jetbrains-mono-nerd ttf-nerd-fonts-symbols
+paru -S hyprlock --noconfirm --needed
+paru -S ghostty
+paru -S hyprpaper
+paru -Syu wlogout-git --noconfirm --needed
+
+paru -S ffmpeg aalib ascii-image-converter-bin --noconfirm
+

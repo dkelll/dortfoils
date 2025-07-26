@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-sudo apt update
+sudo pacman -Syu --noconfirm
 sudo apt -y install llvm lld llvm-dev liblld-dev clang libclang-dev libglib2.0-dev libgtk-4-dev libadwaita-1-dev git
 
 wget https://ziglang.org/download/0.13.0/zig-linux-x86_64-0.13.0.tar.xz -O /tmp/zig.tar.xz

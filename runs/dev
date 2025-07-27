@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-paru -S --noconfirm --needed gimp tldr go fzf rofi-wayland btop bc stylua node npm
+paru -S --noconfirm --needed gimp tldr go fzf rofi-wayland btop bc stylua node npm jq dunst
 paru -S ttf-font-awesome waybar ttf-jetbrains-mono-nerd ttf-nerd-fonts-symbols
 paru -S hyprlock --noconfirm --needed
 paru -S ghostty

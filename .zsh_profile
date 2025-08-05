@@ -6,6 +6,7 @@ DEV_ENV=$HOME/dev-env
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 export GOPATH=$HOME/.local/go
+export PATH="$PATH:/path/to/elixir/bin"
 export GIT_EDITOR=$VIM
 export DEV_ENV_HOME="$HOME/dev-env"
 alias sforgs="cat ~/.sfdx/alias.json | jq -r .orgs"

@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-wget https://go.dev/dl/go1.24.2.linux-amd64.tar.gz
+curl -sS https://webi.sh/golang | sh
 
-sudo rm -rf /usr/local/go
-sudo tar -C /usr/local -xzf go1.24.2.linux-amd64.tar.gz
+source ~/.config/envman/PATH.env

@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+brew tap FelixKratz/formulae
+brew install sketchybar
+brew install --cask font-hack-nerd-font
+
+mkdir -p ~/dev-env/.config/sketchybar
+
+npx degit --force omerxx/dotfiles/sketchybar ./.config/sketchybar

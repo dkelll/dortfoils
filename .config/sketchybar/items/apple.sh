@@ -3,6 +3,10 @@
 POPUP_OFF="sketchybar --set apple.logo popup.drawing=off"
 POPUP_CLICK_SCRIPT="sketchybar --set \$NAME popup.drawing=toggle"
 
+echo "nerds"
+echo "$APPLE"
+echo "rule"
+
 sketchybar --add item           apple.logo left                             \
                                                                             \
            --set apple.logo     icon=$APPLE                                 \

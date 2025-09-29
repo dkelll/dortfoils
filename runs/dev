@@ -8,4 +8,5 @@ paru -S hyprpaper
 paru -Syu wlogout-git --noconfirm --needed
 
 paru -S ffmpeg aalib ascii-image-converter-bin --noconfirm
+paru -S openbsd-netcat
 

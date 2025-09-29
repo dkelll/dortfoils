@@ -2,4 +2,7 @@
 
 curl -sS https://webi.sh/golang | sh
 
+export PATH=$PATH:$(go env GOPATH)/bin
+
+# I don't think this next line is even working...
 source ~/.config/envman/PATH.env

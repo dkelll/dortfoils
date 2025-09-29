@@ -3,10 +3,14 @@ export ZSH=$HOME/dev-env
 
 export EDITOR="nvim"
 export GPG_TTY=$(tty)
-export PATH="$HOME/neovim/bin:$HOME/.local/bin:$HOME/go/bin:$PATH"
+export PATH="$HOME/neovim/bin:$HOME/.local/bin:$PATH"
 export SF_USE_PROGRESS_BAR=false
 export XDG_CONFIG_HOME=$HOME/.config
 export DEV_ENV=$ZSH
+export PATH="$HOME/.local/opt/go/bin:$PATH"
+export PATH="$HOME/go/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
+
 
 export PROJECTS=~/projects
 

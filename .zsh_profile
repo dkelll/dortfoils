@@ -33,4 +33,8 @@ addToPathFront $HOME/.local/scripts
 
 addToPathFront $HOME/.local/scripts
 addToPathFront $HOME/.local/bin
-addToPathFront /usr/local/go/bin
+addToPathFront $HOME/.local/opt/go/bin
+addToPathFront $HOME/go/bin
+addToPathFront $HOME/.local/bin
+addToPathFront $HOME/.local/go/bin
+

@@ -39,9 +39,8 @@ background-blur = true
 # # Just for example:
 # resize-overlay-duration = 4s 200ms
 
-# # Themes
-theme = rose-pine-moon
-# theme = rose-pine
+# # Themes 'ghostty +list-themes'
+theme = Starlight
 window-theme = ghostty
 
 

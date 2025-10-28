@@ -7,7 +7,7 @@ exec-on-workspace-change = ['/bin/bash', '-c',
 ]
 
 # Start AeroSpace at login
-start-at-login = true
+start-at-login = false
 
 # Normalizations. See: https://nikitabobko.github.io/AeroSpace/guide#normalization
 enable-normalization-flatten-containers = true
@@ -67,6 +67,9 @@ run = 'layout floating'
     if.app-id = 'com.spotify.client'
     run = 'move-node-to-workspace 9'
 
+[[on-window-detected]]
+    if.app-id = 'com.microsoft.teams2'
+    run = 'move-node-to-workspace 8'
 # Possible values: (qwerty|dvorak)
 # See https://nikitabobko.github.io/AeroSpace/guide#key-mapping
 [key-mapping]
@@ -194,6 +197,7 @@ f = ['layout floating tiling', 'mode main'] # Toggle between floating and tiling
 backspace = ['close-all-windows-but-current', 'mode main']
 
 [mode.apps.binding]
+esc = ['reload-config', 'mode main']
 alt-g = ['exec-and-forget open -a /Applications/Ghostty.app', 'mode main']
 
 [workspace-to-monitor-force-assignment]

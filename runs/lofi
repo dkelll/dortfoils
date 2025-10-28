@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+# An extremely simplistic lofi player in terminal
+
+# https://github.com/talwat/lowfi
+
+## I couldn't get it to work when using cargo nor when building manually. Download the release binary for now I guess.

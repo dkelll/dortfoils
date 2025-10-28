@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+# A terminal-based typing practice application inspired by monkeytype.
+# This might have problems with python. Check Claude if you run into issues.
+
+pip install smassh

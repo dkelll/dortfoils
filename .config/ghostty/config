@@ -40,7 +40,7 @@ background-opacity = 0.92
 # resize-overlay-duration = 4s 200ms
 
 # # Themes
-theme = rose-pine
+theme = Rose Pine
 
 window-theme = ghostty
 

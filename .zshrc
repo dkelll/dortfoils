@@ -7,6 +7,12 @@ export PATH="$HOME/neovim/bin:$HOME/.local/bin:$PATH"
 export SF_USE_PROGRESS_BAR=false
 export XDG_CONFIG_HOME=$HOME/.config
 export DEV_ENV=$ZSH
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init --path)"
+eval "$(pyenv init -)"
+export JAVA_HOME=$(/usr/libexec/java_home -v 21)
+export PATH="$JAVA_HOME/bin:$PATH"
 
 export PROJECTS=~/projects
 

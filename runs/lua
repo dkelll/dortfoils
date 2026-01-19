@@ -1,8 +1,18 @@
 #!/usr/bin/env bash
 
+
 # lua btw
+cd /tmp
+curl -O https://www.lua.org/ftp/lua-5.1.5.tar.gz
+tar -xzf lua-5.1.5.tar.gz
+cd lua-5.1.5
+make macosx
+sudo make install
+
 brew install luarocks
-brew install lua
+
+luarocks config lua_version 5.1
+
 brew install luv
 brew install luajit
 brew install lua-language-server

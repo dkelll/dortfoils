@@ -70,10 +70,15 @@ run = 'layout floating'
 [[on-window-detected]]
     if.app-id = 'com.microsoft.teams2'
     run = 'move-node-to-workspace 8'
+
+[[on-window-detected]]
+    if.app-id = 'com.tinyspeck.slackmacgap'
+    run = 'move-node-to-workspace 8'
+
 # Possible values: (qwerty|dvorak)
 # See https://nikitabobko.github.io/AeroSpace/guide#key-mapping
 [key-mapping]
-preset = 'qwerty'
+preset = 'dvorak'
 
 # Gaps between windows (inner-*) and between monitor edges (outer-*).
 # Possible values:

@@ -1,11 +1,39 @@
 #!/usr/bin/env bash
 
-WALLPAPER_DIR="$HOME/wallpapers/"
-CURRENT_WALL=$(hyprctl hyprpaper listloaded)
-# Get the name of the focused monitor with hyprctl
-FOCUSED_MONITOR=$(hyprctl monitors -j | jq -r '.[] | select(.focused) | .name')
-# Get a random wallpaper that is not the current one
-WALLPAPER=$(find "$WALLPAPER_DIR" -mindepth 1 -maxdepth 2 -type f ! -name "$(basename "$CURRENT_WALL")" | shuf -n 1)
+if [[ "$1" == "--help" ]]; then
+    echo "Usage: $(basename "$0") [filename|--help]"
+    echo ""
+    echo "Changes the wallpaper on the focused monitor."
+    echo ""
+    echo "Arguments:"
+    echo "  [filename]    Searches for a wallpaper matching the provided name and applies it."
+    echo "                The search is case-insensitive and handles partial names,"
+    echo "                names with or without extensions, and full paths."
+    echo "  --help        Display this help message."
+    echo ""
+    echo "If no arguments are provided, a random wallpaper will be selected."
+    exit 0
+fi
 
-# Apply the selected wallpaper
-hyprctl hyprpaper reload "$FOCUSED_MONITOR","$WALLPAPER" > /dev/null
+WALLPAPER_DIR="$HOME/wallpapers/"
+FOCUSED_MONITOR=$(hyprctl monitors -j | jq -r '.[] | select(.focused) | .name')
+WALLPAPER=""
+
+if [ -z "$1" ]; then
+    # No arguments, get a random wallpaper
+    CURRENT_WALL=$(hyprctl hyprpaper listloaded)
+    WALLPAPER=$(find "$WALLPAPER_DIR" -mindepth 1 -maxdepth 2 -type f ! -name "$(basename "$CURRENT_WALL")" | shuf -n 1)
+else
+    # Argument provided, find a matching wallpaper
+    SEARCH_TERM=$(basename "$1")
+    WALLPAPER=$(find "$WALLPAPER_DIR" -mindepth 1 -maxdepth 2 -type f -iname "*$SEARCH_TERM*" | head -n 1)
+fi
+
+if [ -n "$WALLPAPER" ]; then
+    # Apply the selected wallpaper
+    hyprctl hyprpaper reload "$FOCUSED_MONITOR","$WALLPAPER" > /dev/null
+else
+    # This else block will only be reached if an argument was given but no wallpaper was found.
+    echo "Wallpaper matching '$1' not found." >&2
+    exit 1
+fi

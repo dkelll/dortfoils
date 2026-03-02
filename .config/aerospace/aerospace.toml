@@ -206,8 +206,17 @@ esc = ['reload-config', 'mode main']
 alt-g = ['exec-and-forget open -a /Applications/Ghostty.app', 'mode main']
 
 [workspace-to-monitor-force-assignment]
+# HOME
 1 = '^G274.*$'
 2 = '^G274.*$'
 3 = '^Built-in.*$'
 4 = '^Built-in.*$'
 5 = '^Built-in.*$'
+
+# ON-SITE
+# 1 = '.*P2219.*'
+# 2 = '.*P2217.*'
+# 3 = '^Built-in.*$'
+# 4 = '^Built-in.*$'
+# 5 = '.*P2219.*'
+# 8 = '^Built-in.*$'

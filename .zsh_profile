@@ -29,7 +29,6 @@ addToPathFront() {
 
 addToPathFront $HOME/.zig
 addToPathFront $HOME/.local/scripts
-
-addToPathFront $HOME/.local/scripts
 addToPathFront $HOME/.local/bin
+addToPathFront $HOME/.deno/bin
 addToPathFront /usr/local/go/bin

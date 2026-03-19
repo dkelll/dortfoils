@@ -2,7 +2,7 @@
 
 rm -rf $HOME/personal/neovim
 mkdir -p $HOME/personal
-git clone --branch v0.10.2 https://github.com/neovim/neovim.git $HOME/personal/neovim
+git clone --branch nightly https://github.com/neovim/neovim.git $HOME/personal/neovim
 brew install ninja cmake gettext curl
 
 cd $HOME/personal/neovim

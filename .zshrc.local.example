@@ -1,3 +1,6 @@
 # Machine-specific config that should NOT be committed to the repo.
 # Add work credentials, tokens, and environment-specific exports here.
 # This file is sourced by .zshrc if it exists.
+#
+# Copy this file to .zshrc.local and fill in your values:
+#   cp .zshrc.local.example .zshrc.local

@@ -14,6 +14,9 @@ eval "$(pyenv init -)"
 export JAVA_HOME=$(/usr/libexec/java_home -v 21)
 export PATH="$JAVA_HOME/bin:$PATH"
 
+# Source work-specific config (not committed)
+[[ -f "$ZSH/.zshrc.local" ]] && source "$ZSH/.zshrc.local"
+
 export PROJECTS=~/projects
 
 HISTFILE=~/.zsh_history

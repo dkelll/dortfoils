@@ -1,0 +1,3 @@
+# Machine-specific config that should NOT be committed to the repo.
+# Add work credentials, tokens, and environment-specific exports here.
+# This file is sourced by .zshrc if it exists.

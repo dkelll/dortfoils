@@ -1,6 +1,6 @@
 #!/bin/bash
 # =============================================================================
-# jira-tool — Jira Cloud REST API wrapper for AI assistant usage
+# jira — Jira Cloud REST API wrapper for AI assistant usage
 # =============================================================================
 # Setup: Add to ~/.zshrc:
 #   export JIRA_BASE_URL=""
@@ -117,7 +117,7 @@ for i in issues:
 }
 
 cmd_view() {
-  local key="${1:?Usage: jira-tool view <ISSUE-KEY>}"
+  local key="${1:?Usage: jira view <ISSUE-KEY>}"
   local issue_json
   issue_json=$(jira_get "/rest/api/3/issue/${key}?fields=summary,description,status,issuetype,assignee,comment,priority")
 
@@ -176,7 +176,7 @@ PYEOF
 }
 
 cmd_status() {
-  local key="${1:?Usage: jira-tool status <ISSUE-KEY> [target-status]}"
+  local key="${1:?Usage: jira status <ISSUE-KEY> [target-status]}"
   local target="${2:-}"
   local transitions_json
   transitions_json=$(jira_get "/rest/api/2/issue/${key}/transitions")
@@ -212,8 +212,8 @@ for t in json.load(sys.stdin).get('transitions',[]):
 }
 
 cmd_comment() {
-  local key="${1:?Usage: jira-tool comment <ISSUE-KEY> <message>}"
-  local msg="${2:?Usage: jira-tool comment <ISSUE-KEY> <message>}"
+  local key="${1:?Usage: jira comment <ISSUE-KEY> <message>}"
+  local msg="${2:?Usage: jira comment <ISSUE-KEY> <message>}"
   local body
   body=$(python3 -c "
 import json
@@ -225,7 +225,7 @@ print(json.dumps({'body':{'type':'doc','version':1,'content':[{'type':'paragraph
 
 cmd_help() {
   cat <<EOF
-Usage: jira-tool <command> [args]
+Usage: jira <command> [args]
 
 Commands:
   sprint                          List current sprint issues assigned to you

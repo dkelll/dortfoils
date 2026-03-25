@@ -1,0 +1,252 @@
+#!/bin/bash
+# =============================================================================
+# jira-tool — Jira Cloud REST API wrapper for AI assistant usage
+# =============================================================================
+# Setup: Add to ~/.zshrc:
+#   export JIRA_BASE_URL=""
+#   export JIRA_CLOUD_ID="<cloudId>"          # from $JIRA_BASE_URL/_edge/tenant_info (scoped tokens only)
+#   export JIRA_EMAIL="<your-email>"
+#   export JIRA_API_TOKEN="<your-api-token>"
+#   export JIRA_BOARD_ID=""
+#   export JIRA_ACCOUNT_ID=""
+#
+# Scoped token scopes needed: read:jira-work, write:jira-work, read:jira-user
+# =============================================================================
+
+set -euo pipefail
+
+# --- Env validation ---
+missing=()
+for var in JIRA_BASE_URL JIRA_EMAIL JIRA_API_TOKEN JIRA_BOARD_ID JIRA_ACCOUNT_ID; do
+  [ -z "${!var:-}" ] && missing+=("$var")
+done
+if [ ${#missing[@]} -gt 0 ]; then
+  echo "ERROR: Missing env vars: ${missing[*]}"
+  echo "See script header for setup instructions."
+  exit 1
+fi
+
+# --- Auth & URL helpers ---
+AUTH=$(printf '%s:%s' "$JIRA_EMAIL" "$JIRA_API_TOKEN" | base64)
+
+api_url() {
+  if [ -n "${JIRA_CLOUD_ID:-}" ]; then
+    echo "https://api.atlassian.com/ex/jira/${JIRA_CLOUD_ID}${1}"
+  else
+    echo "${JIRA_BASE_URL}${1}"
+  fi
+}
+
+jira_get() {
+  curl -sf -H "Authorization: Basic $AUTH" -H "Accept: application/json" "$(api_url "$1")"
+}
+
+jira_post() {
+  curl -sf -X POST -H "Authorization: Basic $AUTH" -H "Content-Type: application/json" -H "Accept: application/json" -d "$2" "$(api_url "$1")"
+}
+
+# --- Subcommands ---
+
+cmd_sprint() {
+  local sprints_json sprint_ids sprint_names
+  sprints_json=$(jira_get "/rest/agile/1.0/board/${JIRA_BOARD_ID}/sprint?state=active")
+
+  eval "$(echo "$sprints_json" | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+vals=d.get('values',[])
+if not vals: print('echo \"No active sprint found.\"; return 0')
+else:
+    ids=' '.join(str(v['id']) for v in vals)
+    names='|'.join(v['name'] for v in vals)
+    goals='|'.join(v.get('goal','') for v in vals)
+    print(f'sprint_ids=({ids})')
+    print(f'sprint_names=\"{names}\"')
+    print(f'sprint_goals=\"{goals}\"')
+")"
+
+  IFS='|' read -ra names <<< "$sprint_names"
+  IFS='|' read -ra goals <<< "$sprint_goals"
+  for idx in "${!sprint_ids[@]}"; do
+    echo "Sprint: ${names[$idx]}"
+    [ -n "${goals[$idx]:-}" ] && echo "Goal: ${goals[$idx]}"
+    echo "---"
+    local issues_json
+    issues_json=$(jira_get "/rest/agile/1.0/sprint/${sprint_ids[$idx]}/issue?jql=assignee=${JIRA_ACCOUNT_ID}&fields=summary,status,issuetype&maxResults=50")
+    echo "$issues_json" | python3 -c "
+import json,sys
+issues=json.load(sys.stdin).get('issues',[])
+if not issues: print('No issues assigned to you.')
+for i in issues:
+    f=i['fields']
+    print(f\"{i['key']} | {f.get('issuetype',{}).get('name','?')} | {f.get('status',{}).get('name','?')} | {f.get('summary','?')}\")"
+  done
+}
+
+cmd_upcoming() {
+  local sprints_json
+  sprints_json=$(jira_get "/rest/agile/1.0/board/${JIRA_BOARD_ID}/sprint?state=future")
+
+  eval "$(echo "$sprints_json" | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+vals=d.get('values',[])
+if not vals: print('echo \"No future sprints found.\"; return 0')
+else:
+    ids=' '.join(str(v['id']) for v in vals)
+    names='|'.join(v['name'] for v in vals)
+    print(f'sprint_ids=({ids})')
+    print(f'sprint_names=\"{names}\"')
+")"
+
+  IFS='|' read -ra names <<< "$sprint_names"
+  for idx in "${!sprint_ids[@]}"; do
+    echo "Sprint: ${names[$idx]}"
+    echo "---"
+    local issues_json
+    issues_json=$(jira_get "/rest/agile/1.0/sprint/${sprint_ids[$idx]}/issue?jql=assignee=${JIRA_ACCOUNT_ID}&fields=summary,status,issuetype&maxResults=50")
+    echo "$issues_json" | python3 -c "
+import json,sys
+issues=json.load(sys.stdin).get('issues',[])
+if not issues: print('No issues assigned to you.')
+for i in issues:
+    f=i['fields']
+    print(f\"{i['key']} | {f.get('issuetype',{}).get('name','?')} | {f.get('status',{}).get('name','?')} | {f.get('summary','?')}\")"
+    echo
+  done
+}
+
+cmd_view() {
+  local key="${1:?Usage: jira-tool view <ISSUE-KEY>}"
+  local issue_json
+  issue_json=$(jira_get "/rest/api/3/issue/${key}?fields=summary,description,status,issuetype,assignee,comment,priority")
+
+  echo "$issue_json" | python3 << 'PYEOF'
+import json, sys
+
+def extract_adf(node):
+    if isinstance(node, str): return node
+    if not isinstance(node, dict): return ""
+    t = node.get("type", "")
+    if t == "text": return node.get("text", "")
+    if t == "hardBreak": return "\n"
+    if t == "mention": return "@" + node.get("attrs", {}).get("text", "?")
+    children = "".join(extract_adf(c) for c in node.get("content", []))
+    if t in ("paragraph", "heading", "blockquote", "listItem"): return children + "\n"
+    if t == "bulletList": return "".join("  • " + extract_adf(c) for c in node.get("content", []))
+    if t == "orderedList":
+        return "".join(f"  {i+1}. {extract_adf(c)}" for i, c in enumerate(node.get("content", [])))
+    return children
+
+data = json.load(sys.stdin)
+f = data.get("fields", {})
+
+print(f"Key: {data['key']}")
+print(f"Type: {f.get('issuetype',{}).get('name','?')}")
+print(f"Status: {f.get('status',{}).get('name','?')}")
+print(f"Priority: {f.get('priority',{}).get('name','?')}")
+print(f"Assignee: {f.get('assignee',{}).get('displayName','Unassigned') if f.get('assignee') else 'Unassigned'}")
+print(f"Summary: {f.get('summary','?')}")
+print()
+
+desc = f.get("description")
+if desc:
+    print("Description:")
+    print(extract_adf(desc))
+else:
+    print("Description: (none)")
+print()
+
+# Surface any custom fields that look like ADF (e.g. acceptance criteria)
+for k, v in f.items():
+    if k.startswith("customfield_") and isinstance(v, dict) and v.get("type") == "doc":
+        print(f"Custom Field ({k}):")
+        print(extract_adf(v))
+        print()
+
+comments = f.get("comment", {}).get("comments", [])
+if comments:
+    print(f"Comments ({len(comments)}):")
+    for c in comments[-5:]:
+        author = c.get("author", {}).get("displayName", "?")
+        created = c.get("created", "?")[:10]
+        body = extract_adf(c.get("body", {}))
+        print(f"  [{created}] {author}: {body}")
+PYEOF
+}
+
+cmd_status() {
+  local key="${1:?Usage: jira-tool status <ISSUE-KEY> [target-status]}"
+  local target="${2:-}"
+  local transitions_json
+  transitions_json=$(jira_get "/rest/api/2/issue/${key}/transitions")
+
+  if [ -z "$target" ]; then
+    echo "$transitions_json" | python3 -c "
+import json,sys
+for t in json.load(sys.stdin).get('transitions',[]):
+    print(f\"{t['id']}: {t['name']}\")"
+    return
+  fi
+
+  local tid
+  tid=$(echo "$transitions_json" | python3 -c "
+import json,sys
+target='$target'.lower()
+for t in json.load(sys.stdin).get('transitions',[]):
+    if t['name'].lower()==target:
+        print(t['id']);sys.exit(0)
+print('')")
+
+  if [ -z "$tid" ]; then
+    echo "ERROR: No transition matching '${target}'. Available:"
+    echo "$transitions_json" | python3 -c "
+import json,sys
+for t in json.load(sys.stdin).get('transitions',[]):
+    print(f\"  {t['id']}: {t['name']}\")"
+    exit 1
+  fi
+
+  jira_post "/rest/api/2/issue/${key}/transitions" "{\"transition\":{\"id\":\"${tid}\"}}" > /dev/null
+  echo "OK: ${key} transitioned to '${target}'"
+}
+
+cmd_comment() {
+  local key="${1:?Usage: jira-tool comment <ISSUE-KEY> <message>}"
+  local msg="${2:?Usage: jira-tool comment <ISSUE-KEY> <message>}"
+  local body
+  body=$(python3 -c "
+import json
+print(json.dumps({'body':{'type':'doc','version':1,'content':[{'type':'paragraph','content':[{'type':'text','text':$(python3 -c "import json,sys;print(json.dumps(sys.argv[1]))" "$msg")}]}]}}))")
+
+  jira_post "/rest/api/3/issue/${key}/comment" "$body" > /dev/null
+  echo "OK: Comment added to ${key}"
+}
+
+cmd_help() {
+  cat <<EOF
+Usage: jira-tool <command> [args]
+
+Commands:
+  sprint                          List current sprint issues assigned to you
+  upcoming                        List future sprint issues assigned to you
+  view <ISSUE-KEY>                Show issue details
+  status <ISSUE-KEY> [status]     List or change issue transitions
+  comment <ISSUE-KEY> <message>   Add a comment to an issue
+  help                            Show this help
+EOF
+}
+
+# --- Dispatch ---
+export AUTH JIRA_BASE_URL JIRA_BOARD_ID JIRA_ACCOUNT_ID JIRA_EMAIL JIRA_API_TOKEN
+cmd="${1:-help}"
+shift || true
+case "$cmd" in
+  sprint)   cmd_sprint "$@" ;;
+  upcoming) cmd_upcoming "$@" ;;
+  view)     cmd_view "$@" ;;
+  status)   cmd_status "$@" ;;
+  comment)  cmd_comment "$@" ;;
+  help)     cmd_help ;;
+  *)        echo "Unknown command: $cmd"; cmd_help; exit 1 ;;
+esac

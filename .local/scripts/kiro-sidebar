@@ -1,0 +1,157 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+POLL=${KIRO_SIDEBAR_POLL:-2}
+KIRO_DB="$HOME/Library/Application Support/kiro-cli/data.sqlite3"
+KIRO_TODOS="$HOME/Library/Application Support/kiro-cli/todo-lists"
+CWD=${KIRO_SIDEBAR_CWD:-$(pwd)}
+
+R="\033[0m"; DIM="\033[2m"; BOLD="\033[1m"
+CYAN="\033[36m"; GREEN="\033[32m"; RED="\033[31m"
+YELLOW="\033[33m"; MAGENTA="\033[35m"; WHITE="\033[97m"; BLUE="\033[34m"
+
+find_todo() {
+  local todo_file=""
+  if [[ -f "$KIRO_DB" ]]; then
+    local conv_id
+    conv_id=$(sqlite3 "$KIRO_DB" \
+      "SELECT conversation_id FROM conversations_v2 WHERE key='$CWD' ORDER BY updated_at DESC LIMIT 1" 2>/dev/null)
+    if [[ -n "$conv_id" ]]; then
+      todo_file=$(python3 -c "
+import json, glob, sys
+base, cid = sys.argv[1], sys.argv[2]
+for d in glob.glob(f'{base}/*'):
+    f = sorted(glob.glob(f'{d}/*.json'))[-1]
+    if json.load(open(f)).get('session_id') == cid:
+        print(f); sys.exit()
+" "$KIRO_TODOS" "$conv_id" 2>/dev/null)
+    fi
+  fi
+  if [[ -z "$todo_file" ]]; then
+    todo_file=$(python3 -c "
+import json, glob, os, sys
+base, cwd = sys.argv[1], sys.argv[2]
+best, best_mtime = '', 0
+for d in glob.glob(f'{base}/*'):
+    f = sorted(glob.glob(f'{d}/*.json'))[-1]
+    data = json.load(open(f))
+    for mf in data.get('modified_files', []):
+        if mf.startswith(cwd):
+            mt = os.path.getmtime(f)
+            if mt > best_mtime: best, best_mtime = f, mt
+            break
+if best: print(best)
+" "$KIRO_TODOS" "$CWD" 2>/dev/null)
+  fi
+  echo "$todo_file"
+}
+
+fingerprint() {
+  local fp=""
+  # todo dir mtime (catches new/updated snapshots)
+  local todo_file
+  todo_file=$(find_todo)
+  if [[ -n "$todo_file" ]]; then
+    fp+=$(stat -f "%m" "$todo_file" 2>/dev/null)
+    # also watch for new files in the same todo dir
+    fp+=":$(stat -f "%m" "$(dirname "$todo_file")" 2>/dev/null)"
+  fi
+  fp+="|"
+  # git index + worktree
+  if git -C "$CWD" rev-parse --is-inside-work-tree &>/dev/null; then
+    local git_dir
+    git_dir=$(git -C "$CWD" rev-parse --git-dir 2>/dev/null)
+    fp+=$(stat -f "%m" "$git_dir/index" 2>/dev/null)
+    fp+=":$(git -C "$CWD" status --porcelain 2>/dev/null | md5 -q)"
+  fi
+  echo "$fp"
+}
+
+draw() {
+  local cols=$(tput cols)
+  clear
+  echo ""
+  printf "${CYAN}${BOLD}"
+  cat <<'EOF'
+  ██╗  ██╗██╗██████╗  ██████╗
+  ██║ ██╔╝██║██╔══██╗██╔═══██╗
+  █████╔╝ ██║██████╔╝██║   ██║
+  ██╔═██╗ ██║██╔══██╗██║   ██║
+  ██║  ██╗██║██║  ██║╚██████╔╝
+  ╚═╝  ╚═╝╚═╝╚═╝  ╚═╝ ╚═════╝
+EOF
+  printf "${R}"
+  printf "  ${DIM}sidebar dashboard${R}\n\n"
+
+  sep() { printf "${DIM}"; printf '─%.0s' $(seq 1 "$cols"); printf "${R}\n"; }
+
+  printf "  ${MAGENTA}${BOLD}📋 TODO${R}\n"
+  sep
+  local todo_file
+  todo_file=$(find_todo)
+  if [[ -n "$todo_file" && -f "$todo_file" ]]; then
+    python3 -c "
+import json, sys
+data = json.load(open(sys.argv[1]))
+print(f'  \033[2m{data[\"description\"]}\033[0m')
+for t in data.get('tasks', []):
+    d = t['task_description']
+    if t.get('completed'):
+        print(f'  \033[32m  ✓ \033[2m{d}\033[0m')
+    else:
+        print(f'  \033[33m  ○ {d}\033[0m')
+" "$todo_file"
+  else
+    printf "  ${DIM}no todo list found for this project${R}\n"
+  fi
+  echo ""
+
+  printf "  ${BLUE}${BOLD}  GIT STATUS${R}\n"
+  sep
+  if git -C "$CWD" rev-parse --is-inside-work-tree &>/dev/null; then
+    local branch
+    branch=$(git -C "$CWD" branch --show-current 2>/dev/null || echo "detached")
+    printf "  ${DIM}branch:${R} ${CYAN}${branch}${R}\n"
+    local staged unstaged untracked
+    staged=$(git -C "$CWD" diff --cached --name-status 2>/dev/null)
+    unstaged=$(git -C "$CWD" diff --name-status 2>/dev/null)
+    untracked=$(git -C "$CWD" ls-files --others --exclude-standard 2>/dev/null)
+    if [[ -n "$staged" ]]; then
+      printf "\n  ${GREEN}${BOLD}Staged${R}\n"
+      while IFS=$'\t' read -r status file; do
+        printf "  ${GREEN}  %-2s %s${R}\n" "$status" "$file"
+      done <<< "$staged"
+    fi
+    if [[ -n "$unstaged" ]]; then
+      printf "\n  ${RED}${BOLD}Modified${R}\n"
+      while IFS=$'\t' read -r status file; do
+        printf "  ${RED}  %-2s %s${R}\n" "$status" "$file"
+      done <<< "$unstaged"
+    fi
+    if [[ -n "$untracked" ]]; then
+      printf "\n  ${DIM}${BOLD}Untracked${R}\n"
+      while read -r file; do
+        printf "  ${DIM}  ?  %s${R}\n" "$file"
+      done <<< "$untracked"
+    fi
+    if [[ -z "$staged" && -z "$unstaged" && -z "$untracked" ]]; then
+      printf "  ${GREEN}  ✓ working tree clean${R}\n"
+    fi
+  else
+    printf "  ${DIM}not a git repo${R}\n"
+  fi
+  echo ""
+  sep
+  printf "  ${DIM}watching for changes (poll ${POLL}s)${R}\n"
+}
+
+# Initial draw
+last_fp=""
+while true; do
+  fp=$(fingerprint)
+  if [[ "$fp" != "$last_fp" ]]; then
+    draw
+    last_fp="$fp"
+  fi
+  sleep "$POLL"
+done

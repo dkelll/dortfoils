@@ -2,7 +2,7 @@
 set -euo pipefail
 
 if [[ -n "${TMUX:-}" ]]; then
-  tmux split-window -h -l 25% "KIRO_SIDEBAR_CWD='$(pwd)' $HOME/dev-env/.local/scripts/kiro-sidebar"
+  tmux split-window -h -l 60 "KIRO_SIDEBAR_CWD='$(pwd)' $HOME/dev-env/.local/scripts/kiro-sidebar"
   tmux select-pane -L
 fi
 

@@ -12,37 +12,66 @@ YELLOW="\033[33m"; MAGENTA="\033[35m"; WHITE="\033[97m"; BLUE="\033[34m"
 
 find_todo() {
   local todo_file=""
-  if [[ -f "$KIRO_DB" ]]; then
-    local conv_id
-    conv_id=$(sqlite3 "$KIRO_DB" \
-      "SELECT conversation_id FROM conversations_v2 WHERE key='$CWD' ORDER BY updated_at DESC LIMIT 1" 2>/dev/null)
-    if [[ -n "$conv_id" ]]; then
-      todo_file=$(python3 -c "
-import json, glob, sys
-base, cid = sys.argv[1], sys.argv[2]
-for d in glob.glob(f'{base}/*'):
-    f = sorted(glob.glob(f'{d}/*.json'))[-1]
-    if json.load(open(f)).get('session_id') == cid:
-        print(f); sys.exit()
-" "$KIRO_TODOS" "$conv_id" 2>/dev/null)
-    fi
-  fi
-  if [[ -z "$todo_file" ]]; then
-    todo_file=$(python3 -c "
-import json, glob, os, sys
-base, cwd = sys.argv[1], sys.argv[2]
-best, best_mtime = '', 0
-for d in glob.glob(f'{base}/*'):
-    f = sorted(glob.glob(f'{d}/*.json'))[-1]
-    data = json.load(open(f))
-    for mf in data.get('modified_files', []):
-        if mf.startswith(cwd):
-            mt = os.path.getmtime(f)
-            if mt > best_mtime: best, best_mtime = f, mt
-            break
-if best: print(best)
-" "$KIRO_TODOS" "$CWD" 2>/dev/null)
-  fi
+  todo_file=$(python3 -c "
+import json, glob, os, sys, sqlite3
+
+base, cwd, db_path = sys.argv[1], sys.argv[2], sys.argv[3]
+
+def latest_snap(d):
+    files = sorted(glob.glob(f'{d}/*.json'))
+    return files[-1] if files else None
+
+# Strategy 1: match session_id to conversation_id
+try:
+    conn = sqlite3.connect(db_path)
+    row = conn.execute(
+        'SELECT conversation_id, created_at FROM conversations_v2 WHERE key=? ORDER BY updated_at DESC LIMIT 1',
+        (cwd,)).fetchone()
+    conn.close()
+    if row:
+        conv_id, conv_created = row
+        for d in glob.glob(f'{base}/*'):
+            f = latest_snap(d)
+            if f and json.load(open(f)).get('session_id') == conv_id:
+                print(f); sys.exit()
+
+        # Strategy 2: match by modified_files under cwd (check all snapshots)
+        best, best_mt = '', 0
+        for d in glob.glob(f'{base}/*'):
+            files = sorted(glob.glob(f'{d}/*.json'))
+            if not files: continue
+            matched = False
+            for f in files:
+                data = json.load(open(f))
+                if any(mf.startswith(cwd) for mf in data.get('modified_files', [])):
+                    matched = True; break
+            if matched:
+                mt = os.path.getmtime(files[-1])
+                if mt > best_mt: best, best_mt = files[-1], mt
+        if best:
+            print(best); sys.exit()
+
+        # Strategy 3: newest todo created after conversation started
+        # (handles freshly-created todos with no modified_files yet)
+        conv_ts = conv_created / 1000.0
+        best, best_mt = '', 0
+        for d in glob.glob(f'{base}/*'):
+            files = sorted(glob.glob(f'{d}/*.json'))
+            if not files: continue
+            first = files[0]
+            # filename is creation timestamp in ms
+            try:
+                create_ts = int(os.path.basename(first).replace('.json','')) / 1000.0
+            except ValueError:
+                continue
+            if create_ts >= conv_ts:
+                mt = os.path.getmtime(files[-1])
+                if mt > best_mt: best, best_mt = files[-1], mt
+        if best:
+            print(best)
+except Exception:
+    pass
+" "$KIRO_TODOS" "$CWD" "$KIRO_DB" 2>/dev/null)
   echo "$todo_file"
 }
 
@@ -53,9 +82,13 @@ fingerprint() {
   todo_file=$(find_todo)
   if [[ -n "$todo_file" ]]; then
     fp+=$(stat -f "%m" "$todo_file" 2>/dev/null)
-    # also watch for new files in the same todo dir
     fp+=":$(stat -f "%m" "$(dirname "$todo_file")" 2>/dev/null)"
   fi
+  # watch base todo dir + all subdirs for new todo lists/snapshots
+  fp+=":$(stat -f "%m" "$KIRO_TODOS" 2>/dev/null)"
+  for d in "$KIRO_TODOS"/*/; do
+    fp+=":$(stat -f "%m" "$d" 2>/dev/null)"
+  done
   fp+="|"
   # git index + worktree
   if git -C "$CWD" rev-parse --is-inside-work-tree &>/dev/null; then

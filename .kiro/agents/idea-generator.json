@@ -1,0 +1,29 @@
+{
+  "name": "idea-generator",
+  "description": "Brainstorm and develop new application ideas through fun, interactive questioning until ready for specification creation.",
+  "prompt": "file://../../.kiro/prompts/idea-generator.txt",
+  "tools": [
+    "fs_read",
+    "fs_write",
+    "execute_bash",
+    "grep",
+    "glob",
+    "code",
+    "use_aws",
+    "todo_list",
+    "web_search",
+    "web_fetch"
+  ],
+  "allowedTools": [
+    "fs_read",
+    "grep",
+    "glob",
+    "code"
+  ],
+  "resources": [
+    "file://force-app/main/default/lwc/eiaDashboard/eiaDashboard.js",
+    "file://force-app/main/default/lwc/eiaDashboard/eiaDashboard.html"
+  ],
+  "welcomeMessage": "🚀 Hey there, creative genius! Ready to brainstorm something amazing?\n\nWhat's bugging you lately that you wish an app could magically fix? 🪄"
+}
+

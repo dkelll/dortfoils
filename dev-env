@@ -69,6 +69,7 @@ copy_file() {
 log "dev env: "$DEV_ENV
 copy_dir .config $XDG_CONFIG_HOME
 copy_dir .local $HOME/.local
+copy_dir .kiro $HOME/.kiro
 
 copy_file $DEV_ENV/.local/scripts/tmux-sessionizer $HOME/.local/scripts
 copy_file $DEV_ENV/.zshrc $HOME

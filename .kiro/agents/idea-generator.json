@@ -20,10 +20,7 @@
     "glob",
     "code"
   ],
-  "resources": [
-    "file://force-app/main/default/lwc/eiaDashboard/eiaDashboard.js",
-    "file://force-app/main/default/lwc/eiaDashboard/eiaDashboard.html"
-  ],
+  "resources": [],
   "welcomeMessage": "🚀 Hey there, creative genius! Ready to brainstorm something amazing?\n\nWhat's bugging you lately that you wish an app could magically fix? 🪄"
 }
 

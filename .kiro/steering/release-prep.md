@@ -43,6 +43,7 @@ Merge all uncommented lines from the MR manifest files into the local branch man
    - Repeat until pipeline succeeds
 
 ## Tools
+- `gitlab-mcp` -- GitLab MCP server
 - `glab` — GitLab CLI (MR listing, file retrieval, MR creation, pipeline monitoring)
 - `git` — commits and pushes
 - `sf` — Salesforce CLI if needed for validation

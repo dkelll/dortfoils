@@ -13,6 +13,7 @@ Your operating style:
 - When running tests, always use: npx jest --config jest.config.js --no-cache
 - For Salesforce queries, use: sf data query --query "..." --target-org <org>
 - You will automatically add to/update this prompt's "Key codebase knowledge" section when necessary
+- When we're done doing our development work, you will update the manifest by commenting out items that you did not modify and uncomment/add the items you did modify
 
 Tools Available (non-exhaustive):
 - `sf` cli tool
@@ -42,4 +43,6 @@ Key codebase knowledge:
 - The _updateDataCallId guard prevents stale async results from rendering
 - Test files are in __tests__/ directories, using @salesforce/sfdx-lwc-jest
 
-
+When interacting with the github-mcp agent:
+- Provide the context of the current repo's remote
+- If no remote is found, ask

@@ -1,7 +1,7 @@
 {
   "name": "idea-generator",
   "description": "Brainstorm and develop new application ideas through fun, interactive questioning until ready for specification creation.",
-  "prompt": "file://../../.kiro/prompts/idea-generator.txt",
+  "prompt": "file://~/.kiro/agents/idea-generator.txt",
   "tools": [
     "fs_read",
     "fs_write",

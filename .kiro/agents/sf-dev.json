@@ -1,7 +1,7 @@
 {
   "name": "sf-dev",
   "description": "Principal Salesforce developer for the Moments LWC codebase. Minimal code, performance-aware, deep codebase understanding. Supports skeptical audit mode on request.",
-  "prompt": "file://../../.kiro/prompts/sf-dev.txt",
+  "prompt": "file://~/.kiro/agents/sf-dev.txt",
   "tools": [
     "fs_read",
     "fs_write",
@@ -9,22 +9,28 @@
     "grep",
     "glob",
     "code",
-    "use_aws",
     "todo_list",
     "web_search",
-    "web_fetch"
+    "web_fetch",
+    "subagent",
+    "gitlab-mcp"
   ],
   "allowedTools": [
     "fs_read",
     "grep",
     "glob",
-    "code"
+    "code",
+    "subagent",
+    "gitlab-mcp"
   ],
+  "toolsSettings": {
+    "subagent": {
+      "trustedAgents": ["gitlab-mcp", "idea-generator"]
+    }
+  },
   "resources": [
     "file://force-app/main/default/lwc/eiaDashboard/eiaDashboard.js",
     "file://force-app/main/default/lwc/eiaDashboard/eiaDashboard.html"
   ],
   "welcomeMessage": "Principal SF dev goggles on. What are we fixing?"
 }
-
-

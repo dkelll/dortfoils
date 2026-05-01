@@ -1,0 +1,17 @@
+  {
+    "name": "gitlab-mcp",
+    "description": "Post-dev GitLab DevOps — pipeline monitoring, manual job triggering, MR inspection, release management",
+    "prompt": "file://~/.kiro/agents/gitlab-mcp.txt",
+    "tools": ["@GitLab"],
+    "allowedTools": [
+        "@GitLab/*"
+    ],
+    "mcpServers": {
+      "GitLab": {
+        "type": "http",
+        "url": "https://southwest.gitlab-dedicated.com/api/v4/mcp",
+        "headers": {}
+      }
+    }
+  }
+

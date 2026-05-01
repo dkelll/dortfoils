@@ -1,2 +1,3 @@
 # Super secret file
 .zshrc.local
+node_modules/

@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+set -e
+
+REPO="$HOME/Projects/SketchyBar"
+
+echo "Building SketchyBar from fork..."
+cd "$REPO"
+git checkout dev
+make universal
+
+echo "Installing to ~/.local/bin..."
+cp "$REPO/bin/sketchybar" "$HOME/.local/bin/sketchybar"
+chmod +x "$HOME/.local/bin/sketchybar"
+
+echo "Restarting sketchybar..."
+pkill sketchybar 2>/dev/null || true
+sleep 0.5
+nohup "$HOME/.local/bin/sketchybar" > /tmp/sketchybar.log 2>&1 &
+
+echo "Done. Running: $(sketchybar --version)"

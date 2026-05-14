@@ -2,7 +2,6 @@
 
 sketchybar --add event aerospace_workspace_change
 
-# Invisible watcher — refreshes all pills when foreground app changes
 sketchybar --add item workspace_watcher left \
     --subscribe workspace_watcher front_app_switched aerospace_workspace_change \
     --set workspace_watcher \
@@ -28,6 +27,5 @@ for sid in 1 2 3 4 5 6 7 8 9 0; do
             click_script="aerospace workspace $sid" \
             script="$PLUGIN_DIR/workspace.sh $sid"
 
-    # Set initial state immediately — don't wait for a workspace change event
     FOCUSED_WORKSPACE="$FOCUSED" NAME="space.$sid" "$PLUGIN_DIR/workspace.sh" "$sid"
 done

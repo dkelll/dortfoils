@@ -2,11 +2,19 @@
 
 sketchybar --add event aerospace_workspace_change
 
+# Invisible watcher — refreshes all pills when foreground app changes
+sketchybar --add item workspace_watcher left \
+    --subscribe workspace_watcher front_app_switched aerospace_workspace_change \
+    --set workspace_watcher \
+        drawing=off \
+        updates=on \
+        script="$PLUGIN_DIR/workspaces_refresh.sh"
+
 FOCUSED=$(aerospace list-workspaces --focused)
 
 for sid in 1 2 3 4 5 6 7 8 9 0; do
     sketchybar --add item "space.$sid" left \
-        --subscribe "space.$sid" aerospace_workspace_change front_app_switched \
+        --subscribe "space.$sid" aerospace_workspace_change \
         --set "space.$sid" \
             label="$sid" \
             label.font="$FONT:Bold:12.0" \

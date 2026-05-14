@@ -1,15 +1,15 @@
 # Notify Sketchybar about workspace change
 exec-on-workspace-change = ['/bin/bash', '-c',
-  'sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE'
+  '/Users/e191319/.local/bin/sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE'
 ]
 
 after-startup-command = [
-  'exec-and-forget sketchybar',
-  'exec-and-forget /bin/bash -c "sleep 1 && $HOME/.config/borders/bordersrc"'
+  'exec-and-forget /Users/e191319/.local/bin/sketchybar',
+  'exec-and-forget /bin/bash -c "sleep 1 && /Users/e191319/.config/borders/bordersrc"'
 ]
 
 # Start AeroSpace at login
-start-at-login = false
+start-at-login = true
 
 # Normalizations. See: https://nikitabobko.github.io/AeroSpace/guide#normalization
 enable-normalization-flatten-containers = true

@@ -78,3 +78,26 @@ copy_file $DEV_ENV/.gitconfig $HOME
 copy_file $DEV_ENV/dev-env $HOME/.local/scripts
 
 aerospace reload-config
+
+# Build local binaries FIRST (before launchd needs them)
+log "building local binaries..."
+execute swiftc "$HOME/.local/bin/kbd_switch.swift" -o "$HOME/.local/bin/kbd_switch"
+execute cp "$HOME/Projects/SketchyBar/bin/sketchybar" "$HOME/.local/bin/sketchybar"
+execute chmod +x "$HOME/.local/bin/sketchybar" "$HOME/.local/bin/kbd_switch"
+
+# Install and reload launchd agents
+LAUNCHD_SRC="$XDG_CONFIG_HOME/launchd"
+LAUNCHD_DST="$HOME/Library/LaunchAgents"
+for plist in "$LAUNCHD_SRC"/*.plist; do
+    name=$(basename "$plist")
+    log "installing launchd agent: $name"
+    execute cp "$plist" "$LAUNCHD_DST/$name"
+    execute launchctl unload "$LAUNCHD_DST/$name" 2>/dev/null || true
+    execute launchctl load "$LAUNCHD_DST/$name"
+done
+
+# Restart sketchybar with fresh config
+log "restarting sketchybar..."
+execute pkill sketchybar 2>/dev/null || true
+sleep 1
+execute nohup "$HOME/.local/bin/sketchybar" > /tmp/sketchybar.log 2>&1 &

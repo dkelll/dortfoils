@@ -3,6 +3,7 @@
 sketchybar --add item battery right \
     --set battery \
         update_freq=60 \
+        updates=on \
         label.color=$LABEL_COLOR \
         icon.color=$ICON_COLOR \
         script="$PLUGIN_DIR/battery.sh"

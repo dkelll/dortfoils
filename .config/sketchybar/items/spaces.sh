@@ -3,7 +3,7 @@
 sketchybar --add event aerospace_workspace_change
 
 sketchybar --add item workspace_watcher left \
-    --subscribe workspace_watcher front_app_switched aerospace_workspace_change \
+    --subscribe workspace_watcher front_app_switched aerospace_workspace_change space_windows_change \
     --set workspace_watcher \
         drawing=off \
         updates=on \

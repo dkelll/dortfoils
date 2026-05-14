@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+
+source "$HOME/.config/sketchybar/colors.sh"
+
+options=(
+    style=round
+    width=$BORDER_WIDTH
+    hidpi=on
+    "active_color=gradient(top_right=0xffff2d9b,bottom_left=0xff00e5ff)"
+    inactive_color=$BORDER_INACTIVE
+)
+
+borders "${options[@]}"

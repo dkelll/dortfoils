@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+swiftc "$HOME/.local/bin/kbd_switch.swift" -o "$HOME/.local/bin/kbd_switch"
+echo "kbd_switch compiled to ~/.local/bin/kbd_switch"

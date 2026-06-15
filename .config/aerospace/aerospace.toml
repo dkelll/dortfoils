@@ -64,6 +64,11 @@ run = 'layout floating'
 
 [[on-window-detected]]
     if.app-id = 'com.mitchellh.ghostty'
+    if.window-title-regex-substring = 'scratchpad'
+    run = 'layout floating'
+
+[[on-window-detected]]
+    if.app-id = 'com.mitchellh.ghostty'
     run = 'move-node-to-workspace 2'
 
 [[on-window-detected]]
@@ -96,7 +101,7 @@ inner.horizontal = 20
 inner.vertical =   20
 outer.left =       20
 outer.bottom =     20
-outer.top =        20
+outer.top =        [{ monitor."^Built-in.*$" = 20 }, 52]
 outer.right =      20
 
 # 'main' binding mode declaration
@@ -186,7 +191,7 @@ alt-shift-tab = 'move-workspace-to-monitor --wrap-around next'
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#mode
 alt-shift-semicolon = 'mode service'
-alt-shift-enter = 'mode apps'
+alt-shift-enter = 'exec-and-forget /Users/e191319/.local/scripts/scratchpad'
 
 alt-c = 'exec-and-forget open -a /Applications/Claude.app'
 alt-f = 'exec-and-forget open -a /Applications/Flameshot.app'

@@ -6,7 +6,7 @@ inclusion: manual
 
 ## Instructions
 
-Use the `glab` CLI to pull all MRs tied to a specific GitLab label.
+Pull all MRs tied to a specific GitLab label, update the manifest based on certain criteria listed below, and monitor the pipeline.
 
 Before starting:
 1. Ask the user which **GitLab label** to filter MRs by
@@ -21,7 +21,7 @@ Merge all uncommented lines from the MR manifest files into the local branch man
 ## Steps
 
 1. **Prep the manifest**
-   - Fetch all open MRs with the specified label via `glab`
+   - Fetch all open MRs with the specified label
    - For each MR, retrieve its version of the manifest file
    - Collect all uncommented lines across all MR manifests
    - Update the local manifest to include all those lines (no duplicates, no commented lines)
@@ -31,7 +31,7 @@ Merge all uncommented lines from the MR manifest files into the local branch man
    - Push to remote
 
 3. **Create the MR**
-   - Create a GitLab MR targeting the specified release branch via `glab`
+   - Create a GitLab MR targeting the specified release branch
    - Monitor the pipeline for success or error
    - Create a list of all squash commit messages on the branch, but only if they were tagged with our tag
    - Add this list of commit messages to the MR Description

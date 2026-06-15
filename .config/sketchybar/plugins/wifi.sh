@@ -1,16 +1,9 @@
 #!/usr/bin/env sh
 
-SSID="$INFO"
+IP=$(ipconfig getifaddr en0 2>/dev/null)
 
-# INFO can be empty during network churn (e.g. VPN connect/disconnect)
-# Fall back to IP check before declaring offline
-if [ -z "$SSID" ]; then
-    IP=$(ipconfig getifaddr en0 2>/dev/null)
-    [ -n "$IP" ] && SSID="connected" || SSID=""
-fi
-
-if [ -z "$SSID" ]; then
-    sketchybar --set wifi icon="󰤭" label="offline"
+if [ -n "$IP" ]; then
+    sketchybar --set wifi icon="󰤨" label="Connected"
 else
-    sketchybar --set wifi icon="󰤨" label="$SSID"
+    sketchybar --set wifi icon="󰤭" label="Offline"
 fi

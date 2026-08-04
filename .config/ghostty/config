@@ -29,6 +29,7 @@
 # # part of the value. For example, this will have a value of "#123abc":
 # background = #123abc
 background-opacity = 0.92
+scrollback-limit = 100000000
 # background-blur = true
 #
 # # Empty values are used to reset config keys to default.

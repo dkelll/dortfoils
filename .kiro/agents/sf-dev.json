@@ -25,7 +25,7 @@
   ],
   "toolsSettings": {
     "subagent": {
-      "trustedAgents": ["gitlab-mcp", "idea-generator"]
+      "trustedAgents": ["gitlab-mcp", "idea-generator", "jira-agent"]
     }
   },
   "resources": [

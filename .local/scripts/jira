@@ -9,6 +9,7 @@
 #   export JIRA_API_TOKEN="<your-api-token>"
 #   export JIRA_BOARD_ID=""
 #   export JIRA_ACCOUNT_ID=""
+#   export JIRA_PROJECT_KEY=""                 # e.g. "CEO" — only needed for `releases`/`release`
 #
 # Scoped token scopes needed: read:jira-work, write:jira-work, read:jira-user
 # =============================================================================
@@ -29,11 +30,22 @@ fi
 # --- Auth & URL helpers ---
 AUTH=$(printf '%s:%s' "$JIRA_EMAIL" "$JIRA_API_TOKEN" | base64)
 
+# Scoped tokens route through api.atlassian.com; otherwise hit the site directly.
+if [ -n "${JIRA_CLOUD_ID:-}" ]; then
+  API_BASE="https://api.atlassian.com/ex/jira/${JIRA_CLOUD_ID}"
+else
+  API_BASE="${JIRA_BASE_URL}"
+fi
+
 api_url() {
-  if [ -n "${JIRA_CLOUD_ID:-}" ]; then
-    echo "https://api.atlassian.com/ex/jira/${JIRA_CLOUD_ID}${1}"
-  else
-    echo "${JIRA_BASE_URL}${1}"
+  echo "${API_BASE}${1}"
+}
+
+require_project_key() {
+  if [ -z "${JIRA_PROJECT_KEY:-}" ]; then
+    echo "ERROR: JIRA_PROJECT_KEY is not set." >&2
+    echo "Add 'export JIRA_PROJECT_KEY=\"YOURKEY\"' to your shell profile (e.g. \"CEO\")." >&2
+    exit 1
   fi
 }
 
@@ -52,6 +64,38 @@ jira_get() {
 
 jira_post() {
   curl -sf -X POST -H "Authorization: Basic $AUTH" -H "Content-Type: application/json" -H "Accept: application/json" -d "$2" "$(api_url "$1")"
+}
+
+# JQL search via the current /rest/api/3/search/jql endpoint (the legacy
+# /rest/api/3/search was removed by Atlassian). Token-paginated; collects all
+# pages and prints a single {"issues":[...]} JSON blob on stdout.
+# Usage: search_issues "<jql>" "<comma,separated,fields>"
+# Returns exit 2 on HTTP error (e.g. an invalid JQL field), so callers can
+# fall back to alternate queries.
+search_issues() {
+  API_BASE="$API_BASE" AUTH="$AUTH" JQL="$1" FIELDS="$2" python3 -c '
+import json, os, sys, urllib.parse, urllib.request, urllib.error
+base = os.environ["API_BASE"]; auth = os.environ["AUTH"]
+jql = os.environ["JQL"]; fields = os.environ["FIELDS"]
+issues = []; token = None
+while True:
+    params = {"jql": jql, "fields": fields, "maxResults": "100"}
+    if token:
+        params["nextPageToken"] = token
+    url = base + "/rest/api/3/search/jql?" + urllib.parse.urlencode(params)
+    req = urllib.request.Request(url, headers={"Authorization": "Basic " + auth, "Accept": "application/json"})
+    try:
+        with urllib.request.urlopen(req) as r:
+            d = json.load(r)
+    except urllib.error.HTTPError as e:
+        sys.stderr.write("HTTP %s from search/jql: %s\n" % (e.code, e.read().decode("utf-8", "replace")))
+        sys.exit(2)
+    issues += d.get("issues", [])
+    if d.get("isLast", True) or not d.get("nextPageToken"):
+        break
+    token = d["nextPageToken"]
+print(json.dumps({"issues": issues}))
+'
 }
 
 # --- Subcommands ---
@@ -125,62 +169,86 @@ for i in issues:
   done
 }
 
-cmd_view() {
-  local key="${1:?Usage: jira view <ISSUE-KEY>}"
-  local issue_json
-  issue_json=$(jira_get "/rest/api/3/issue/${key}?fields=summary,description,status,issuetype,assignee,comment,priority,customfield_10054")
-
-  echo "$issue_json" | python3 -c "
+# Render a single issue's detail from JSON on stdin. Shared by `view` and
+# `feature` so features render exactly like stories.
+render_issue() {
+  python3 -c '
 import json, sys
 
 def extract_adf(node):
     if isinstance(node, str): return node
-    if not isinstance(node, dict): return ''
-    t = node.get('type', '')
-    if t == 'text': return node.get('text', '')
-    if t == 'hardBreak': return '\n'
-    if t == 'mention': return '@' + node.get('attrs', {}).get('text', '?')
-    children = ''.join(extract_adf(c) for c in node.get('content', []))
-    if t in ('paragraph', 'heading', 'blockquote', 'listItem'): return children + '\n'
-    if t == 'bulletList': return ''.join('  • ' + extract_adf(c) for c in node.get('content', []))
-    if t == 'orderedList':
-        return ''.join(f'  {i+1}. {extract_adf(c)}' for i, c in enumerate(node.get('content', [])))
+    if not isinstance(node, dict): return ""
+    t = node.get("type", "")
+    if t == "text": return node.get("text", "")
+    if t == "hardBreak": return "\n"
+    if t == "mention": return "@" + node.get("attrs", {}).get("text", "?")
+    children = "".join(extract_adf(c) for c in node.get("content", []))
+    if t in ("paragraph", "heading", "blockquote", "listItem"): return children + "\n"
+    if t == "bulletList": return "".join("  \u2022 " + extract_adf(c) for c in node.get("content", []))
+    if t == "orderedList":
+        return "".join("  %d. %s" % (i + 1, extract_adf(c)) for i, c in enumerate(node.get("content", [])))
     return children
 
 data = json.load(sys.stdin)
-f = data.get('fields', {})
+f = data.get("fields", {})
 
-print(f'Key: {data[\"key\"]}')
-print(f'Type: {f.get(\"issuetype\",{}).get(\"name\",\"?\")}')
-print(f'Status: {f.get(\"status\",{}).get(\"name\",\"?\")}')
-print(f'Priority: {f.get(\"priority\",{}).get(\"name\",\"?\")}')
-print(f'Assignee: {f[\"assignee\"][\"displayName\"] if f.get(\"assignee\") else \"Unassigned\"}')
-print(f'Summary: {f.get(\"summary\",\"?\")}')
+print("Key: %s" % data["key"])
+print("Type: %s" % f.get("issuetype", {}).get("name", "?"))
+print("Status: %s" % f.get("status", {}).get("name", "?"))
+print("Priority: %s" % f.get("priority", {}).get("name", "?"))
+print("Assignee: %s" % (f["assignee"]["displayName"] if f.get("assignee") else "Unassigned"))
+print("Summary: %s" % f.get("summary", "?"))
 print()
 
-desc = f.get('description')
+desc = f.get("description")
 if desc:
-    print('Description:')
+    print("Description:")
     print(extract_adf(desc))
 else:
-    print('Description: (none)')
+    print("Description: (none)")
 print()
 
-ac = f.get('customfield_10054')
-if ac and isinstance(ac, dict) and ac.get('type') == 'doc':
-    print('Acceptance Criteria:')
+ac = f.get("customfield_10054")
+if ac and isinstance(ac, dict) and ac.get("type") == "doc":
+    print("Acceptance Criteria:")
     print(extract_adf(ac))
     print()
 
-comments = f.get('comment', {}).get('comments', [])
+comments = f.get("comment", {}).get("comments", [])
 if comments:
-    print(f'Comments ({len(comments)}):')
+    print("Comments (%d):" % len(comments))
     for c in comments[-5:]:
-        author = c.get('author', {}).get('displayName', '?')
-        created = c.get('created', '?')[:10]
-        body = extract_adf(c.get('body', {}))
-        print(f'  [{created}] {author}: {body}')
-"
+        author = c.get("author", {}).get("displayName", "?")
+        created = c.get("created", "?")[:10]
+        body = extract_adf(c.get("body", {}))
+        print("  [%s] %s: %s" % (created, author, body))
+'
+}
+
+# Format a {"issues":[...]} blob (stdin) as one line per issue.
+list_issues() {
+  python3 -c '
+import json, sys
+issues = json.load(sys.stdin).get("issues", [])
+if not issues:
+    print("  (none)")
+    sys.exit(0)
+for i in issues:
+    f = i.get("fields", {})
+    print("%s | %s | %s | %s" % (
+        i.get("key", "?"),
+        f.get("issuetype", {}).get("name", "?"),
+        f.get("status", {}).get("name", "?"),
+        f.get("summary", "?"),
+    ))
+print()
+print("Total: %d work item(s)" % len(issues))
+'
+}
+
+cmd_view() {
+  local key="${1:?Usage: jira view <ISSUE-KEY>}"
+  jira_get "/rest/api/3/issue/${key}?fields=summary,description,status,issuetype,assignee,comment,priority,customfield_10054" | render_issue
 }
 
 cmd_status() {
@@ -231,6 +299,70 @@ print(json.dumps({'body':{'type':'doc','version':1,'content':[{'type':'paragraph
   echo "OK: Comment added to ${key}"
 }
 
+cmd_feature() {
+  local key="${1:?Usage: jira feature <FEATURE-KEY>}"
+
+  # Feature details render identically to a story (same generic issue endpoint).
+  jira_get "/rest/api/3/issue/${key}?fields=summary,description,status,issuetype,assignee,comment,priority,customfield_10054" | render_issue
+
+  echo
+  echo "Child Work Items:"
+  echo "---"
+
+  # Parent->child linkage varies by Jira config, so try each known field in
+  # order and use the first query that returns results. Cross-project features
+  # (e.g. EP-* over CEO-*) typically use "Parent Link" (Advanced Roadmaps).
+  local out="" count=0 jql
+  for jql in "parent = \"$key\"" "\"Parent Link\" = \"$key\"" "\"Epic Link\" = \"$key\""; do
+    if out=$(search_issues "$jql ORDER BY key" "summary,status,issuetype" 2>/dev/null); then
+      count=$(echo "$out" | python3 -c 'import json,sys; print(len(json.load(sys.stdin).get("issues",[])))')
+      [ "$count" -gt 0 ] && break
+    fi
+    out=""
+  done
+
+  if [ -z "$out" ] || [ "$count" -eq 0 ]; then
+    echo "  (no child work items found via parent / Parent Link / Epic Link)"
+  else
+    echo "$out" | list_issues
+  fi
+}
+
+cmd_releases() {
+  require_project_key
+  jira_get "/rest/api/3/project/${JIRA_PROJECT_KEY}/versions" | python3 -c '
+import json, sys
+vs = json.load(sys.stdin)
+if not vs:
+    print("No fix versions found for project.")
+    sys.exit(0)
+def state(v):
+    if v.get("archived"): return "archived"
+    return "released" if v.get("released") else "unreleased"
+# Unreleased first, then by release date descending.
+vs.sort(key=lambda v: (v.get("released", False), v.get("releaseDate", "")), reverse=False)
+print("ID | STATE | NAME | RELEASE DATE")
+for v in vs:
+    print("%s | %s | %s | %s" % (v.get("id","?"), state(v), v.get("name","?"), v.get("releaseDate","")))
+print()
+print("Total: %d version(s). Drill in with:  jira release <ID|NAME>" % len(vs))
+'
+}
+
+cmd_release() {
+  require_project_key
+  local ver="${1:?Usage: jira release <VERSION-ID|NAME>}"
+  local jql
+  if [[ "$ver" =~ ^[0-9]+$ ]]; then
+    jql="project = \"$JIRA_PROJECT_KEY\" AND fixVersion = $ver ORDER BY key"
+  else
+    jql="project = \"$JIRA_PROJECT_KEY\" AND fixVersion = \"$ver\" ORDER BY key"
+  fi
+  echo "Fix Version: ${ver}"
+  echo "---"
+  search_issues "$jql" "summary,status,issuetype" | list_issues
+}
+
 cmd_help() {
   cat <<EOF
 Usage: jira <command> [args]
@@ -239,6 +371,9 @@ Commands:
   sprint                          List current sprint issues assigned to you
   upcoming                        List future sprint issues assigned to you
   view <ISSUE-KEY>                Show issue details
+  feature <FEATURE-KEY>           Show feature details + its child work items
+  releases                        List fix versions (releases) for JIRA_PROJECT_KEY
+  release <VERSION-ID|NAME>       List work items in a fix version
   status <ISSUE-KEY> [status]     List or change issue transitions
   comment <ISSUE-KEY> <message>   Add a comment to an issue
   help                            Show this help
@@ -246,13 +381,16 @@ EOF
 }
 
 # --- Dispatch ---
-export AUTH JIRA_BASE_URL JIRA_BOARD_ID JIRA_ACCOUNT_ID JIRA_EMAIL JIRA_API_TOKEN
+export AUTH API_BASE JIRA_BASE_URL JIRA_BOARD_ID JIRA_ACCOUNT_ID JIRA_EMAIL JIRA_API_TOKEN JIRA_PROJECT_KEY
 cmd="${1:-help}"
 shift || true
 case "$cmd" in
   sprint)   cmd_sprint "$@" ;;
   upcoming) cmd_upcoming "$@" ;;
   view)     cmd_view "$@" ;;
+  feature)  cmd_feature "$@" ;;
+  releases) cmd_releases "$@" ;;
+  release)  cmd_release "$@" ;;
   status)   cmd_status "$@" ;;
   comment)  cmd_comment "$@" ;;
   help)     cmd_help ;;

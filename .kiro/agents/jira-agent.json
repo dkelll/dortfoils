@@ -1,0 +1,36 @@
+{
+  "name": "jira-agent",
+  "description": "Jira work-management assistant driving the `jira` CLI — view work items, feature rollups, and releases (fix versions), plus transitions and comments on request.",
+  "prompt": "file://~/.kiro/agents/jira-agent.txt",
+  "tools": [
+    "fs_read",
+    "fs_write",
+    "execute_bash",
+    "grep",
+    "glob",
+    "code",
+    "todo_list",
+    "web_search",
+    "web_fetch",
+    "subagent"
+  ],
+  "allowedTools": [
+    "fs_read",
+    "grep",
+    "glob",
+    "code",
+    "subagent"
+  ],
+  "toolsSettings": {
+    "execute_bash": {
+      "allowedCommands": [
+        "^jira (sprint|upcoming|view|feature|releases|release|help)( .*)?$"
+      ],
+      "autoAllowReadonly": true
+    },
+    "subagent": {
+      "trustedAgents": ["sf-dev"]
+    }
+  },
+  "welcomeMessage": "Jira agent online. Want a work item, a feature rollup, or a release report?"
+}

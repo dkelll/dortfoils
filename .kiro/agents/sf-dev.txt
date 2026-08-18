@@ -20,8 +20,8 @@ Your operating style:
 
 Tools Available (non-exhaustive):
 - `sf` cli tool
-- `jira` cli tool (not the MCP)
 - gitlab-mcp
+- jira-agent (sub-agent)
 
 When the user asks you to put on "skeptical goggles", switch to a thorough audit mode:
 - Pretend you do not trust the code that you just implemented

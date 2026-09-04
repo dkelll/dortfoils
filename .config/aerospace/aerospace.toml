@@ -55,6 +55,10 @@ if.app-name-regex-substring = 'finder'
 run = 'layout floating'
 
 [[on-window-detected]]
+if.app-name-regex-substring = 'outlook'
+run = 'move-node-to-workspace 0'
+
+[[on-window-detected]]
 if.app-name-regex-substring = 'terminal'
 run = 'layout floating'
 
@@ -196,6 +200,7 @@ alt-shift-enter = 'exec-and-forget /Users/e191319/.local/scripts/scratchpad'
 alt-c = 'exec-and-forget open -a /Applications/Claude.app'
 alt-f = 'exec-and-forget open -a /Applications/Flameshot.app'
 alt-m = 'exec-and-forget open -a /Applications/Spotify.app'
+alt-e = 'exec-and-forget open -a /Applications/Outlook.app'
 alt-o = 'exec-and-forget open -a /Applications/Obsidian.app'
 alt-s = 'exec-and-forget open -a /Applications/Slack.app'
 alt-t = 'exec-and-forget open -a /Applications/Microsoft\ Teams.app'
@@ -218,10 +223,11 @@ alt-g = ['exec-and-forget open -a /Applications/Ghostty.app', 'mode main']
 # HOME
 1 = '^G274.*$'
 2 = '^G274.*$'
-3 = '^Built-in.*$'
+3 = '^G274.*$'
 4 = '^Built-in.*$'
-5 = '^Built-in.*$'
-
+5 = '.*P2.*$'
+6 = '^G274.*$'
+8 = '.*P2.*$'
 # ON-SITE
 # 1 = '.*P2219.*'
 # 2 = '.*P2217.*'

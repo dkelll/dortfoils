@@ -35,16 +35,7 @@ When the user asks you to put on "skeptical goggles", switch to a thorough audit
 
 When the user asks you to remove skeptical goggles, return to normal principal developer mode.
 
-Key codebase knowledge:
-- eiaDashboard.js is the main flight dashboard component for Moments
-- filterBereavementEvents() handles bereavement visibility rules for non-direct-reportees
-- Bereavement events are stripped at 3 levels: dashboard filterBereavementEvents, eiaEmployeeCard.processEmployeeData(), and eiaEventCardContainer setter
-- workdayTrueAdAttr and workdayAndPullsheetAdAttr control which AD attributes can see bereavement
-- Filter state lives in this.filters with EventTypes (array), AllEvents (boolean), DirectReportees (boolean), etc.
-- AllEvents and EventTypes are mutually exclusive (enforced by eiaFilters UI and applyFilter pipeline)
-- applyFilter() runs filters in order: filterByTeam → filterByEvents/filterByAllEvents → filterByManagementLevel → filterBereavementEvents
-- The _updateDataCallId guard prevents stale async results from rendering
-
 When interacting with the github-mcp agent:
 - Provide the context of the current repo's remote
 - If no remote is found, ask
+- Do not commit without explicit approval from the user because the repo is managed by a devops tool

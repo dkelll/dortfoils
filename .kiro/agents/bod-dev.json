@@ -13,7 +13,9 @@
     "web_search",
     "web_fetch",
     "subagent",
-    "gitlab-mcp"
+    "gitlab-mcp",
+    "confluence-agent",
+    "figma-agent"
   ],
   "allowedTools": [
     "fs_read",
@@ -25,7 +27,7 @@
   ],
   "toolsSettings": {
     "subagent": {
-      "trustedAgents": ["gitlab-mcp", "idea-generator", "jira-agent"]
+      "trustedAgents": ["gitlab-mcp", "idea-generator", "jira-agent", "confluence-agent", "figma-agent"]
     }
   },
   "resources": [

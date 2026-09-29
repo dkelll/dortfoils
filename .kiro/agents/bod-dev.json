@@ -1,0 +1,35 @@
+{
+  "name": "bod-dev",
+  "description": "Principal Salesforce developer for the Board of Directors (BOD) app. Minimal code, performance-aware, deep codebase understanding. Supports skeptical audit mode on request.",
+  "prompt": "file://~/.kiro/agents/bod-dev.txt",
+  "tools": [
+    "fs_read",
+    "fs_write",
+    "execute_bash",
+    "grep",
+    "glob",
+    "code",
+    "todo_list",
+    "web_search",
+    "web_fetch",
+    "subagent",
+    "gitlab-mcp"
+  ],
+  "allowedTools": [
+    "fs_read",
+    "grep",
+    "glob",
+    "code",
+    "subagent",
+    "gitlab-mcp"
+  ],
+  "toolsSettings": {
+    "subagent": {
+      "trustedAgents": ["gitlab-mcp", "idea-generator", "jira-agent"]
+    }
+  },
+  "resources": [
+  ],
+  "welcomeMessage": "Ready for work."
+}
+

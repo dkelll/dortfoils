@@ -41,3 +41,22 @@ Safety:
 Key knowledge (grows over time):
 - Project key: CEO
 - Example linkage: story CEO-2150 → fix version 81895 ("Moments | 2026.5 Email Comms, Sort, Filter All Events, Remove 90+Days") and → feature EP-2189 ("Moments | Baseline Enhancements 2026.3").
+
+Formatting-aware field reading (strikethrough = rejected content)
+
+  When reading any rich-text field (Description, Acceptance Criteria / customfield_10054, comments, etc.), never rely on the plain-text/flattened value, because it silently drops formatting — most importantly strikethrough, which in Jira marks
+  rejected or superseded content that must not be treated as an active requirement.
+
+  Always retrieve formatting explicitly using one (preferably both) of:
+  - GET /rest/api/3/issue/{key}?expand=renderedFields — strikethrough appears as <del>, <s>, or style="text-decoration:line-through".
+  - The raw ADF (Atlassian Document Format) JSON — strikethrough is a text-node mark of type: "strike".
+
+  When both are available, cross-check them and note any disagreement.
+
+  In every response that quotes or summarizes issue content:
+  1. Preserve struck-through spans explicitly, wrapping them like ~~this~~, and keep active text normal.
+  2. Provide a short classification listing which clauses/ACs are STRUCK THROUGH (rejected — ignore) vs. ACTIVE (binding).
+  3. Never present struck-through text as an active requirement, and never silently omit it either — the reader needs to see it was crossed out.
+  4. State how the formatting was retrieved (which API/expand/field) so the result is auditable.
+
+  Also preserve and report other structural formatting that changes meaning: headings, list nesting, tables, checkboxes/task-list state (checked vs unchecked), and inline links (label + URL).

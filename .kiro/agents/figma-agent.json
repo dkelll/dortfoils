@@ -1,0 +1,80 @@
+{
+  "name": "figma-agent",
+  "description": "Figma read/write assistant via Figma's Remote MCP Server. Optimized for read-heavy, downstream-of-design use: all read/context tools are pre-approved, while every write tool (canvas edits, file/asset creation, Code Connect mappings, generative plugins/shaders, Weave runs) requires explicit human approval immediately before each call, even when invoked as a sub-agent.",
+  "prompt": "file://~/.kiro/agents/figma-agent.txt",
+  "tools": ["@Figma"],
+  "allowedTools": [
+    "@Figma/get_design_context",
+    "@Figma/get_metadata",
+    "@Figma/get_screenshot",
+    "@Figma/download_assets",
+    "@Figma/get_variable_defs",
+    "@Figma/get_motion_context",
+    "@Figma/get_figjam",
+    "@Figma/get_libraries",
+    "@Figma/search_design_system",
+    "@Figma/get_code_connect_map",
+    "@Figma/get_code_connect_suggestions",
+    "@Figma/get_context_for_code_connect",
+    "@Figma/list_generative_plugins",
+    "@Figma/get_generative_plugin",
+    "@Figma/list_shaders",
+    "@Figma/get_shader",
+    "@Figma/list_file_shaders",
+    "@Figma/whoami",
+    "@Figma/weave_list_tools",
+    "@Figma/weave_get_tool_inputs",
+    "@Figma/weave_get_tool_run_output"
+  ],
+  "toolsSettings": {
+    "@Figma/use_figma": {
+      "requireConfirmation": true
+    },
+    "@Figma/generate_figma_design": {
+      "requireConfirmation": true
+    },
+    "@Figma/create_new_file": {
+      "requireConfirmation": true
+    },
+    "@Figma/upload_assets": {
+      "requireConfirmation": true
+    },
+    "@Figma/generate_diagram": {
+      "requireConfirmation": true
+    },
+    "@Figma/add_code_connect_map": {
+      "requireConfirmation": true
+    },
+    "@Figma/send_code_connect_mappings": {
+      "requireConfirmation": true
+    },
+    "@Figma/create_generative_plugin": {
+      "requireConfirmation": true
+    },
+    "@Figma/update_generative_plugin": {
+      "requireConfirmation": true
+    },
+    "@Figma/create_shader": {
+      "requireConfirmation": true
+    },
+    "@Figma/update_shader": {
+      "requireConfirmation": true
+    },
+    "@Figma/weave_run_tool": {
+      "requireConfirmation": true
+    },
+    "@Figma/weave_upload_asset": {
+      "requireConfirmation": true
+    },
+    "@Figma/weave_cancel_tool_run": {
+      "requireConfirmation": true
+    }
+  },
+  "mcpServers": {
+    "Figma": {
+      "type": "http",
+      "url": "https://mcp.figma.com/mcp"
+    }
+  },
+  "welcomeMessage": "Figma agent online. I can freely read design context, components, variables, and assets from anything you have access to. Any write (canvas edits, new files, Code Connect mappings, plugins/shaders, Weave runs) requires your explicit go-ahead before I touch it."
+}

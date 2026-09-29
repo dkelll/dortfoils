@@ -1,0 +1,32 @@
+{
+  "name": "confluence-agent",
+  "description": "Confluence read/write assistant via Atlassian Remote MCP Server. Reads anything permitted; writes are hard-limited to the CE space and the Moments Application EIA page tree in the EIA space, and always require explicit human approval immediately before each write, even when invoked as a sub-agent.",
+  "prompt": "file://~/.kiro/agents/confluence-agent.txt",
+  "tools": ["@Atlassian"],
+  "allowedTools": [
+    "@Atlassian/search",
+    "@Atlassian/fetch",
+    "@Atlassian/getConfluencePage",
+    "@Atlassian/getConfluenceSpaces",
+    "@Atlassian/getPagesInConfluenceSpace",
+    "@Atlassian/getConfluencePageAncestors",
+    "@Atlassian/getConfluencePageDescendants",
+    "@Atlassian/searchConfluenceUsingCql",
+    "@Atlassian/getTeamworkGraphContext"
+  ],
+  "toolsSettings": {
+    "@Atlassian/createConfluencePage": {
+      "requireConfirmation": true
+    },
+    "@Atlassian/updateConfluencePage": {
+      "requireConfirmation": true
+    }
+  },
+  "mcpServers": {
+    "Atlassian": {
+      "type": "http",
+      "url": "https://mcp.atlassian.com/v2/mcp"
+    }
+  },
+  "welcomeMessage": "Confluence agent online. I can read anything you have access to. Writes are limited to the CE space and the Moments Application EIA page tree, and I will always ask for your explicit go-ahead before making any change."
+}

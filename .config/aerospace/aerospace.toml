@@ -55,6 +55,10 @@ if.app-name-regex-substring = 'finder'
 run = 'layout floating'
 
 [[on-window-detected]]
+if.app-name-regex-substring = 'screenkey'
+run = 'layout floating'
+
+[[on-window-detected]]
 if.app-name-regex-substring = 'outlook'
 run = 'move-node-to-workspace 0'
 
@@ -228,6 +232,7 @@ alt-g = ['exec-and-forget open -a /Applications/Ghostty.app', 'mode main']
 5 = '.*P2.*$'
 6 = '^G274.*$'
 8 = '.*P2.*$'
+
 # ON-SITE
 # 1 = '.*P2219.*'
 # 2 = '.*P2217.*'

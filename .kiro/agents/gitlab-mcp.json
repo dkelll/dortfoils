@@ -1,17 +1,29 @@
-  {
-    "name": "gitlab-mcp",
-    "description": "Post-dev GitLab DevOps — pipeline monitoring, manual job triggering, MR inspection, release management",
-    "prompt": "file://~/.kiro/agents/gitlab-mcp.txt",
-    "tools": ["@GitLab"],
-    "allowedTools": [
-        "@GitLab/*"
-    ],
-    "mcpServers": {
-      "GitLab": {
-        "type": "http",
-        "url": "https://southwest.gitlab-dedicated.com/api/v4/mcp",
-        "headers": {}
+{
+  "name": "gitlab-mcp",
+  "description": "GitLab operations via the GitLab MCP server — work items/issues, merge requests, pipelines, repository and release inspection",
+  "prompt": "file://~/.kiro/agents/gitlab-mcp.txt",
+  "tools": [
+    "@GitLab",
+    "fs_read",
+    "grep",
+    "glob"
+  ],
+  "allowedTools": [
+    "@GitLab",
+    "fs_read",
+    "grep",
+    "glob"
+  ],
+  "mcpServers": {
+    "GitLab": {
+      "type": "http",
+      "url": "https://southwest.gitlab-dedicated.com/api/v4/mcp",
+      "oauth": {
+        "redirectUri": "http://localhost:7779/oauth/callback",
+        "oauthScopes": ["mcp"]
       }
     }
-  }
-
+  },
+  "resources": [],
+  "welcomeMessage": "Ready for GitLab work."
+}

@@ -1,0 +1,54 @@
+{
+  "name": "sf-agent",
+  "description": "Principal Salesforce developer for the Salesforce. Minimal code, performance-aware, deep codebase understanding. Supports skeptical audit mode on request.",
+  "prompt": "file://~/.kiro/agents/sf-agent.txt",
+  "tools": [
+    "fs_read",
+    "fs_write",
+    "execute_bash",
+    "grep",
+    "glob",
+    "code",
+    "todo_list",
+    "web_search",
+    "web_fetch",
+    "subagent",
+    "gitlab-mcp",
+    "confluence-agent",
+    "sf-headless360"
+  ],
+  "allowedTools": [
+    "fs_read",
+    "grep",
+    "glob",
+    "code",
+    "subagent",
+    "gitlab-mcp",
+    "sf-headless360"
+  ],
+  "toolsSettings": {
+    "subagent": {
+        "trustedAgents": ["gitlab-mcp", "idea-generator", "jira-agent", "confluence-agent"]
+    }
+  },
+  "mcpServers": {
+      "GitLab": {
+          "type": "http",
+          "url": "https://southwest.gitlab-dedicated.com/api/v4/mcp",
+          "headers": {}
+      },
+      "sf-headless360": {
+          "type": "http",
+          "url": "https://api.salesforce.com/platform/mcp/v1/d/orgfarm-88977978f3/platform/headless-360",
+          "oauth": {
+              "clientId": "3MVG9XgkMlifdwVAGerkwWynhd16CAxgYKDD1P5HEYa66fwxQCOnMU0hPBb7nuO8o8JVoSB_3.kHGm4.6cldK",
+              "redirectUri": "http://localhost:7778/oauth/callback",
+              "oauthScopes": ["mcp_api", "refresh_token"]
+          }
+      }
+  },
+  "resources": [
+  ],
+  "welcomeMessage": "Ready for work."
+}
+

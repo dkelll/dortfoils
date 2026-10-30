@@ -1,0 +1,65 @@
+{
+  "name": "hackathon",
+  "description": "Principal Salesforce developer for the hackathon app built using Salesforce. Minimal code, performance-aware, deep codebase understanding. Supports skeptical audit mode on request.",
+  "prompt": "file://~/.kiro/agents/hackathon.txt",
+  "tools": [
+    "fs_read",
+    "fs_write",
+    "execute_bash",
+    "grep",
+    "glob",
+    "code",
+    "todo_list",
+    "web_search",
+    "web_fetch",
+    "subagent",
+    "@GitLab",
+    "gitlab-mcp",
+    "confluence-agent"
+  ],
+  "allowedTools": [
+    "fs_read",
+    "grep",
+    "glob",
+    "code",
+    "subagent",
+    "gitlab-mcp",
+    "@GitLab/get_issue",
+    "@GitLab/list_issues",
+    "@GitLab/get_issue_notes",
+    "@GitLab/list_work_items",
+    "@GitLab/get_work_item",
+    "@GitLab/get_merge_request",
+    "@GitLab/list_merge_requests",
+    "@GitLab/get_pipeline",
+    "@GitLab/list_pipelines",
+    "@GitLab/get_project"
+  ],
+  "mcpServers": {
+      "GitLab": {
+          "type": "http",
+          "url": "https://southwest.gitlab-dedicated.com/api/v4/mcp",
+          "oauth": {
+              "redirectUri": "http://localhost:7779/oauth/callback",
+              "oauthScopes": ["mcp"]
+          }
+      },
+      "sf-headless360": {
+          "type": "http",
+          "url": "https://api.salesforce.com/platform/mcp/v1/d/orgfarm-88977978f3/platform/headless-360",
+          "oauth": {
+              "clientId": "3MVG9XgkMlifdwVAGerkwWynhd16CAxgYKDD1P5HEYa66fwxQCOnMU0hPBb7nuO8o8JVoSB_3.kHGm4.6cldK",
+              "redirectUri": "http://localhost:7778/oauth/callback",
+              "oauthScopes": ["mcp_api", "refresh_token"]
+          }
+      }
+  },
+  "toolsSettings": {
+    "subagent": {
+        "trustedAgents": ["gitlab-mcp", "idea-generator", "jira-agent", "confluence-agent", "sf-agent"]
+    }
+  },
+  "resources": [
+  ],
+  "welcomeMessage": "Ready for hackathon work."
+}
